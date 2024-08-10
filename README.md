@@ -153,7 +153,3 @@ Here's an example index description for Azure Search based on the document struc
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](./LICENSE.md) file for details.
-
----
-
-Feel free to adjust any section as needed based on your specific requirements or changes in the project.
