@@ -1,0 +1,6 @@
+flask
+azure-search-documents
+azure-cognitiveservices-vision-computervision
+azure-storage-blob
+azure-cosmos
+python-dotenv

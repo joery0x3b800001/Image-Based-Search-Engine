@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload and Search</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Arial', sans-serif;
+        }
+        .container {
+            max-width: 800px;
+        }
+        .form-container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+        .result-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+        .alert-custom {
+            margin-top: 20px;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004085;
+        }
+        .text-primary {
+            color: #007bff !important;
+        }
+        .text-info {
+            color: #17a2b8 !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4 text-center text-primary">Upload and Find Similar Images</h1>
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="form-container">
+                    <form id="uploadForm" enctype="multipart/form-data">
+                        <h2 class="text-info mb-4">Upload Your Image</h2>
+                        <div class="form-group">
+                            <label for="file" class="form-label">Choose an image to upload:</label>
+                            <input type="file" id="file" name="file" class="form-control-file" accept="image/*" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg btn-block">Upload</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loading" class="text-center mt-4" style="display: none;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results mt-4" id="results">
+            <!-- Results will be displayed here -->
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const formData = new FormData();
+            const fileInput = document.getElementById('file');
+            formData.append('file', fileInput.files[0]);
+
+            // Show loading spinner
+            document.getElementById('loading').style.display = 'block';
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                const resultsDiv = document.getElementById('results');
+                resultsDiv.innerHTML = '';
+
+                if (data.error) {
+                    resultsDiv.innerHTML = `<div class="alert alert-danger alert-custom" role="alert">Error: ${data.error}</div>`;
+                } else {
+                    const tags = data.tags;
+                    const similarImages = data.similar_images;
+
+                    resultsDiv.innerHTML = `
+                        <h2 class="text-info my-4">Extracted Tags</h2>
+                        <ul class="list-group mb-4">
+                            ${tags.map(tag => `<li class="list-group-item">${tag}</li>`).join('')}
+                        </ul>
+                        <h2 class="text-info mb-4">Similar Images</h2>
+                        ${similarImages.length ? similarImages.map(imgUrl => `
+                            <div class="mb-3">
+                                <img src="${imgUrl}" class="result-image img-thumbnail" alt="Similar Image">
+                            </div>
+                        `).join('') : '<div class="alert alert-info" role="alert">No similar images found.</div>'}
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('results').innerHTML = `<div class="alert alert-danger alert-custom" role="alert">Error: ${error.message}</div>`;
+            } finally {
+                // Hide loading spinner
+                document.getElementById('loading').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
