@@ -13,7 +13,7 @@ import uuid  # For generating unique keys
 app = Flask(__name__)
 
 # Load environment variables from .env file
-load_dotenv(os.getenv())
+load_dotenv()
 
 # Azure credentials from environment variables
 AZURE_BLOB_CONNECTION_STRING = os.getenv('AZURE_BLOB_CONNECTION_STRING')
